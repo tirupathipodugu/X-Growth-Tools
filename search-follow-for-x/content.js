@@ -1,4 +1,5 @@
-// Runs on x.com/search pages. Follows accounts from the People tab when a run is active.
+// Runs on x.com/search pages. Follows accounts from the People tab when a run is active,
+// working from the top of the results down, and reports every account to the popup.
 (() => {
   if (window.__xsfStarted) return;
   window.__xsfStarted = true;
@@ -26,6 +27,30 @@
     await log(`stopped: ${reason}`);
   }
 
+  // ---- results list shown in the popup ----
+  // results: [{ handle, name, verified, status: 'found'|'next'|'followed'|'skipped'|'failed', reason }]
+  async function upsertResult(handle, patch) {
+    const { results = [] } = await store.get('results');
+    const i = results.findIndex((r) => r.handle.toLowerCase() === handle.toLowerCase());
+    if (i === -1) results.push({ handle, status: 'found', ...patch });
+    else results[i] = { ...results[i], ...patch };
+    await store.set({ results: results.slice(0, 200) });
+  }
+
+  async function recordVisible(known) {
+    const fresh = [];
+    for (const cell of resultCells()) {
+      const handle = handleOf(cell);
+      if (!handle || known.has(handle.toLowerCase())) continue;
+      known.add(handle.toLowerCase());
+      fresh.push({ handle, name: nameOf(cell, handle), verified: !!cell.querySelector('[data-testid="icon-verified"]'), status: 'found' });
+    }
+    if (fresh.length) {
+      const { results = [] } = await store.get('results');
+      await store.set({ results: results.concat(fresh).slice(0, 200) });
+    }
+  }
+
   function blocked() {
     const title = document.title.toLowerCase();
     if (title.includes('just a moment') || title.includes('attention required')) return 'Cloudflare challenge';
@@ -38,7 +63,7 @@
     return null;
   }
 
-  // Only cells inside the main results column, never the "Who to follow" sidebar.
+  // Only cells inside the main results column, never the "Who to follow" sidebar. DOM order = top to bottom.
   function resultCells() {
     const main = document.querySelector('[data-testid="primaryColumn"]');
     return main ? [...main.querySelectorAll('[data-testid="UserCell"]')] : [];
@@ -47,6 +72,12 @@
   function handleOf(cell) {
     const span = [...cell.querySelectorAll('span')].find((s) => /^@\w{1,15}$/.test(s.textContent.trim()));
     return span ? span.textContent.trim().slice(1) : null;
+  }
+
+  function nameOf(cell, handle) {
+    const lines = cell.innerText.split('\n').map((l) => l.trim()).filter(Boolean);
+    const name = lines.find((l) => !l.startsWith('@') && !/^(follow|following|follows you)$/i.test(l));
+    return name && name !== handle ? name.slice(0, 50) : handle;
   }
 
   function hasBio(cell) {
@@ -67,6 +98,11 @@
     return null;
   }
 
+  async function skip(handle, reason) {
+    await upsertResult(handle, { status: 'skipped', reason });
+    await log(`skip @${handle}: ${reason}`);
+  }
+
   async function main() {
     let run = await getRun();
     if (!run || !run.active) return;
@@ -79,10 +115,13 @@
     await log(`page ready, looking for "${run.query}" accounts`);
     await waitFor(() => resultCells().length, 15000);
 
-    const seen = new Set();
+    const seen = new Set();   // accounts already processed
+    const known = new Set();  // accounts already listed in the popup
     let emptyScrolls = 0;
 
     while (true) {
+      await recordVisible(known);
+
       run = await getRun();
       if (!run || !run.active) return log('stopped by you');
       if (run.followed >= run.max) return stopRun(`done, followed ${run.followed}`);
@@ -94,6 +133,7 @@
       const why = blocked();
       if (why) return stopRun(why);
 
+      // First unprocessed account, counting from the top of the results.
       const cell = resultCells().find((c) => {
         const h = handleOf(c);
         return h && !seen.has(h.toLowerCase());
@@ -109,20 +149,22 @@
 
       const handle = handleOf(cell);
       seen.add(handle.toLowerCase());
+      await upsertResult(handle, { status: 'next' });
       cell.scrollIntoView({ block: 'center', behavior: 'smooth' });
       await sleep(rand(800, 1600));
 
-      if (cell.querySelector('button[data-testid$="-unfollow"]')) { await log(`skip @${handle}: already following`); continue; }
+      if (cell.querySelector('button[data-testid$="-unfollow"]')) { await skip(handle, 'already following'); continue; }
       const btn = cell.querySelector('button[data-testid$="-follow"]');
-      if (!btn) { await log(`skip @${handle}: no follow button`); continue; }
-      if (cell.querySelector('[data-testid="icon-lock"]')) { await log(`skip @${handle}: protected`); continue; }
-      if (run.verifiedOnly && !cell.querySelector('[data-testid="icon-verified"]')) { await log(`skip @${handle}: not verified`); continue; }
-      if (run.skipNoBio && !hasBio(cell)) { await log(`skip @${handle}: no bio`); continue; }
+      if (!btn) { await skip(handle, 'no follow button'); continue; }
+      if (cell.querySelector('[data-testid="icon-lock"]')) { await skip(handle, 'protected'); continue; }
+      if (run.verifiedOnly && !cell.querySelector('[data-testid="icon-verified"]')) { await skip(handle, 'not verified'); continue; }
+      if (run.skipNoBio && !hasBio(cell)) { await skip(handle, 'no bio'); continue; }
 
       btn.click();
       const ok = await waitFor(() => cell.querySelector('button[data-testid$="-unfollow"]'), 5000);
       if (!ok) {
         const reason = blocked() || 'follow did not stick';
+        await upsertResult(handle, { status: 'failed', reason });
         return stopRun(`@${handle}: ${reason}`);
       }
 
@@ -132,6 +174,7 @@
       const s = (await store.get('stats')).stats;
       const newStats = s && s.date === today() ? { date: s.date, count: s.count + 1 } : { date: today(), count: 1 };
       await store.set({ run, stats: newStats });
+      await upsertResult(handle, { status: 'followed' });
       await log(`followed @${handle} (${run.followed}/${run.max})`);
 
       if (run.followed >= run.max) return stopRun(`done, followed ${run.followed}`);

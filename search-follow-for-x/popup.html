@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Search &amp; Follow for X</title>
 <style>
-  body { width: 320px; font: 13px system-ui, sans-serif; margin: 12px; color: #0f1419; }
+  body { width: 360px; font: 13px system-ui, sans-serif; margin: 12px; color: #0f1419; background: #fff; }
   h1 { font-size: 15px; margin: 0 0 10px; }
   label { display: block; margin: 8px 0 3px; font-weight: 600; }
   input[type=text], input[type=number] { width: 100%; box-sizing: border-box; padding: 6px; border: 1px solid #cfd9de; border-radius: 6px; }
@@ -16,7 +16,29 @@
   #start { background: #0f1419; color: #fff; }
   #stop { background: #eff3f4; color: #0f1419; }
   #status { margin-top: 10px; font-weight: 600; }
-  #log { margin-top: 6px; max-height: 180px; overflow-y: auto; background: #f7f9f9; border-radius: 6px; padding: 6px; font: 11px ui-monospace, monospace; white-space: pre-wrap; }
+  #showTab { display: none; margin-top: 6px; background: none; padding: 0; color: #1d9bf0; font-weight: 600; text-align: left; }
+
+  .results-head { display: flex; justify-content: space-between; align-items: baseline; margin-top: 12px; }
+  .results-head h2 { font-size: 13px; margin: 0; }
+  .results-head span { color: #536471; font-size: 12px; }
+  #results { list-style: none; margin: 6px 0 0; padding: 0; max-height: 260px; overflow-y: auto; border: 1px solid #eff3f4; border-radius: 8px; }
+  #results:empty::after { content: "Accounts from the search will appear here, top result first."; display: block; padding: 12px; color: #536471; }
+  #results li { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-bottom: 1px solid #eff3f4; cursor: pointer; }
+  #results li:last-child { border-bottom: 0; }
+  #results li:hover { background: #f7f9f9; }
+  .num { color: #8b98a5; width: 18px; text-align: right; font-variant-numeric: tabular-nums; flex: none; }
+  .who { flex: 1; min-width: 0; }
+  .name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .handle { color: #536471; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tick { color: #1d9bf0; }
+  .badge { flex: none; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #eff3f4; color: #536471; }
+  .badge.followed { background: #e6f7f0; color: #00875a; }
+  .badge.next { background: #e8f5fd; color: #1a8cd8; }
+  .badge.failed { background: #fdecee; color: #c4232f; }
+
+  details { margin-top: 10px; }
+  summary { cursor: pointer; color: #536471; font-weight: 600; }
+  #log { margin-top: 6px; max-height: 140px; overflow-y: auto; background: #f7f9f9; border-radius: 6px; padding: 6px; font: 11px ui-monospace, monospace; white-space: pre-wrap; }
 </style>
 </head>
 <body>
@@ -45,7 +67,18 @@
   </div>
 
   <div id="status"></div>
-  <div id="log"></div>
+  <button id="showTab">Show the X tab →</button>
+
+  <div class="results-head">
+    <h2>Results</h2>
+    <span id="counts"></span>
+  </div>
+  <ol id="results"></ol>
+
+  <details>
+    <summary>Activity log</summary>
+    <div id="log"></div>
+  </details>
 
   <script src="popup.js"></script>
 </body>

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Search & Follow for X",
   "short_name": "Search & Follow",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Search X for a topic and follow matching accounts from the People results, slowly, with per-run and daily caps.",
   "minimum_chrome_version": "102",
   "permissions": ["storage"],
