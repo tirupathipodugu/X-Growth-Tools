@@ -1,0 +1,51 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Screenshot</title>
+<style>
+  html,body{margin:0;width:1280px;height:800px;overflow:hidden;font-family:"Segoe UI",system-ui,sans-serif;background:#f7f9f9;color:#0f1419}
+  .wrap{display:flex;height:100%;align-items:center;padding:0 90px;gap:80px;box-sizing:border-box}
+  .copy{flex:1}
+  .copy img{width:84px;height:84px;border-radius:20px}
+  h1{font-size:54px;line-height:1.08;margin:28px 0 18px;letter-spacing:-1px}
+  p{font-size:22px;line-height:1.5;color:#536471;margin:0 0 28px}
+  ul{list-style:none;padding:0;margin:0;font-size:20px;line-height:2}
+  li::before{content:"✓";display:inline-block;width:30px;font-weight:700;color:#00ba7c}
+  .popup{width:380px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(15,20,25,.18);padding:22px;font-size:15px}
+  .popup h2{font-size:18px;margin:0 0 14px}
+  label{display:block;font-weight:600;margin:12px 0 5px}
+  .in{border:1px solid #cfd9de;border-radius:8px;padding:9px 10px}
+  .row{display:flex;gap:10px}.row>div{flex:1}
+  .ck{margin-top:10px;font-weight:400}
+  .btns{display:flex;gap:10px;margin-top:16px}
+  .b{flex:1;text-align:center;padding:10px;border-radius:999px;font-weight:700}
+  .b1{background:#0f1419;color:#fff}.b2{background:#eff3f4}
+  .st{margin-top:14px;font-weight:600}
+  .log{margin-top:8px;background:#f7f9f9;border-radius:8px;padding:10px;font:12.5px Consolas,monospace;line-height:1.6;white-space:pre}
+</style></head>
+<body><div class="wrap">
+  <div class="copy">
+    <img src="../icons/icon128.png" alt="">
+    <h1>Find your people<br>on X, faster.</h1>
+    <p>Type a topic. Search &amp; Follow opens the People results and follows matching accounts for you, at a human pace.</p>
+    <ul>
+      <li>Follows only real search results</li>
+      <li>Random 8–25 s gap between follows</li>
+      <li>Per-run and daily caps</li>
+      <li>Stops on any warning from X</li>
+    </ul>
+  </div>
+  <div class="popup">
+    <h2>Search &amp; Follow for X</h2>
+    <label>Search text</label><div class="in">indie hackers building with AI</div>
+    <div class="row"><div><label>Follows this run</label><div class="in">10</div></div><div><label>Daily cap</label><div class="in">40</div></div></div>
+    <div class="ck">☐ Verified accounts only</div>
+    <div class="ck">☑ Skip accounts with no bio</div>
+    <div class="btns"><div class="b b1">Start</div><div class="b b2">Stop</div></div>
+    <div class="st">Running: 3/10 followed · today: 3</div>
+    <div class="log">[10:42:31] waiting 17s
+[10:42:30] followed @maker_jane (3/10)
+[10:42:09] skip @old_acct: no bio
+[10:41:52] followed @shipdaily (2/10)
+[10:41:30] skip @devsam: already following
+[10:41:12] followed @buildinpublic_ai (1/10)</div>
+  </div>
+</div></body></html>
