@@ -2,7 +2,18 @@
 
 A Chrome extension: type a topic, it opens X's People search results and follows matching accounts one at a time, with random 8–25 s gaps, per-run and daily caps, and an automatic stop on any warning from X.
 
-## Install for development
+## Download & install
+
+**[⬇ Download search-follow-for-x.zip](https://github.com/tirupathipodugu/X-Growth-Tools/releases/latest/download/search-follow-for-x.zip)** (latest version)
+
+1. Download the ZIP above and unzip it to a folder you'll keep (Chrome loads it from there).
+2. Open `chrome://extensions` and turn on **Developer mode** (top right).
+3. Click **Load unpacked** and pick the unzipped folder (the one containing `manifest.json`).
+4. Pin the extension, click it, type a topic and press **Start**.
+
+Tip: try your first run with "Follows this run" set to 2.
+
+## Install from source (development)
 1. `chrome://extensions` → turn on **Developer mode**.
 2. **Load unpacked** → choose this folder.
 
