@@ -11,7 +11,7 @@ Upload `dist/search-follow-for-x-<version>.zip` (built by `build.ps1`).
 - **Store icon:** `icons/icon128.png`
 - **Screenshot:** `store/screenshot-1280x800.png`
 - **Small promo tile:** `store/promo-440x280.png`
-- **Homepage / support URL:** link to the GitHub repo (once published)
+- **Homepage / support URL:** https://github.com/tirupathipodugu/X-Growth-Tools
 
 ### Description
 ```
@@ -41,7 +41,7 @@ Please use it responsibly and within X's rules. This extension is not affiliated
 - **Host permission justification (content script on https://x.com/search\*):** Needed to read the account results on X search pages and click their Follow buttons when the user starts a run. It does not run on any other page.
 - **Remote code:** No, I am not using remote code.
 - **Data usage:** tick nothing (collects no user data). Certify all three disclosures.
-- **Privacy policy URL:** where `store/privacy.html` is hosted (e.g. GitHub Pages).
+- **Privacy policy URL:** https://tirupathipodugu.github.io/X-Growth-Tools/search-follow-for-x/store/privacy.html
 
 ## Distribution tab
 - Visibility: Public (or Unlisted to share by link only)
