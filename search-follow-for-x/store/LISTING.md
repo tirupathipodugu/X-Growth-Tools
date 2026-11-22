@@ -38,7 +38,7 @@ Please use it responsibly and within X's rules. This extension is not affiliated
 ## Privacy practices tab
 - **Single purpose:** Search X for a topic the user enters and follow accounts from the People results, at a limited rate.
 - **Permission justification – storage:** Saves the user's settings, the current run's progress, today's follow count and the activity log locally.
-- **Host permission justification (content script on https://x.com/search\*):** Needed to read the account results on X search pages and click their Follow buttons when the user starts a run. It does not run on any other page.
+- **Host permission justification (content script on https://x.com/\*):** Needed to switch the current X page to the People search for the user's topic, read the account results and click their Follow buttons when the user starts a run. It stays idle on X until the user presses Start and does not run on any other site.
 - **Remote code:** No, I am not using remote code.
 - **Data usage:** tick nothing (collects no user data). Certify all three disclosures.
 - **Privacy policy URL:** https://tirupathipodugu.github.io/X-Growth-Tools/search-follow-for-x/store/privacy.html

@@ -184,5 +184,40 @@
     }
   }
 
-  main().catch((e) => log(`error: ${e.message}`));
+  let running = false;
+  async function start() {
+    if (running) return;
+    running = true;
+    try { await main(); } catch (e) { await log(`error: ${e.message}`); } finally { running = false; }
+  }
+
+  const searchUrl = (q) => `/search?q=${encodeURIComponent(q)}&src=typed_query&f=user`;
+
+  function onSearchPage(q) {
+    const p = new URLSearchParams(location.search);
+    return location.pathname === '/search' && p.get('f') === 'user' && (p.get('q') || '').trim() === q;
+  }
+
+  // Popup → "start": switch this same page to the People search without reloading (X is a
+  // single-page app), then run. Falls back to a normal load if X doesn't pick up the change.
+  chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
+    if (msg && msg.type === 'xsf-start') {
+      reply({ ok: true });
+      (async () => {
+        if (!onSearchPage(msg.query)) {
+          history.pushState({}, '', searchUrl(msg.query));
+          window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
+          await sleep(1500);
+          if (!onSearchPage(msg.query) || !(await waitFor(() => resultCells().length, 8000))) {
+            location.assign(searchUrl(msg.query)); // full load; the script restarts and resumes the run
+            return;
+          }
+        }
+        start();
+      })();
+    }
+  });
+
+  // Also resume a run on a fresh page load of the right search (the fallback path above).
+  if (location.pathname === '/search') start();
 })();

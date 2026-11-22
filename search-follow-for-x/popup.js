@@ -64,7 +64,9 @@ async function render() {
     ? `Running: ${run.followed}/${run.max} followed for "${run.query}"`
     : 'Idle';
   $('status').textContent = `${state} · today: ${todayCount}`;
-  $('showTab').style.display = run && run.active && tabId ? 'block' : 'none';
+  // Only offer "Show the X tab" if you've since moved to a different tab.
+  const [active] = await chrome.tabs.query({ active: true, currentWindow: true });
+  $('showTab').style.display = run && run.active && tabId && active && active.id !== tabId ? 'block' : 'none';
   renderResults(results);
   $('log').textContent = log.slice(-60).reverse().join('\n');
 }
@@ -92,9 +94,15 @@ $('start').addEventListener('click', async () => {
     log: [`[${new Date().toLocaleTimeString()}] start "${query}"`],
   });
   const url = `https://x.com/search?q=${encodeURIComponent(query)}&src=typed_query&f=user`;
-  // Open in the background so this popup stays open and the names fill in live.
-  const tab = await chrome.tabs.create({ url, active: false });
+  // Use the tab you're on. On X, the page switches to the search without reloading;
+  // anywhere else, this same tab loads the search.
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   await chrome.storage.local.set({ tabId: tab.id });
+  try {
+    await chrome.tabs.sendMessage(tab.id, { type: 'xsf-start', query });
+  } catch {
+    await chrome.tabs.update(tab.id, { url });
+  }
   render();
 });
 
